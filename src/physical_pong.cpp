@@ -28,7 +28,8 @@ void setup()
   Serial.begin(9600);
   logging("Starting up");
 
-  pinMode(START_BUTTON, INPUT);
+  pinMode(START_BUTTON1, INPUT);
+  pinMode(START_BUTTON2, INPUT);
   pinMode(PLAYER1_BEGIN, INPUT);
   pinMode(PLAYER1_END, INPUT);
   pinMode(PLAYER2_BEGIN, INPUT);
@@ -44,14 +45,24 @@ void setup()
 
   pinMode(PLAYER1_DIR, OUTPUT);
   pinMode(PLAYER1_STEP, OUTPUT);
+  pinMode(PLAYER1_EN, OUTPUT);
   pinMode(PLAYER2_DIR, OUTPUT);
   pinMode(PLAYER2_STEP, OUTPUT);
+  pinMode(PLAYER2_EN, OUTPUT);
   pinMode(LONG_AXIS_DIR, OUTPUT);
   pinMode(LONG_AXIS_STEP, OUTPUT);
+  pinMode(LONG_AXIS_EN, OUTPUT);
   pinMode(SHORT_AXIS_DIR, OUTPUT);
   pinMode(SHORT_AXIS_STEP, OUTPUT);
-  pinMode(START_LED, OUTPUT);
+  pinMode(SHORT_AXIS_EN, OUTPUT);
+  pinMode(START_LED1, OUTPUT);
+  pinMode(START_LED2, OUTPUT);
   logging("Startup done");
+
+  digitalWrite(PLAYER1_EN, HIGH);
+  digitalWrite(PLAYER2_EN, HIGH);
+  digitalWrite(LONG_AXIS_EN, HIGH);
+  digitalWrite(SHORT_AXIS_EN, HIGH);
 
   logging("Going to start positions");
 
@@ -79,16 +90,19 @@ void loop()
   if (mode == PLAYING)
   {
     logging("Playing");
-    digitalWrite(START_LED, LOW);
+    digitalWrite(START_LED1, LOW);
+    digitalWrite(START_LED2, LOW);
   }
   else
   {
-    digitalWrite(START_LED, HIGH);
+    digitalWrite(START_LED1, HIGH);
+    digitalWrite(START_LED2, HIGH);
     logging("Not playing");
 
-    if (digitalRead(START_BUTTON) == HIGH)
+    if (digitalRead(START_BUTTON1) == HIGH || digitalRead(START_BUTTON2) == HIGH)
     {
-      digitalWrite(START_LED, LOW);
+      digitalWrite(START_LED1, LOW);
+      digitalWrite(START_LED2, LOW);
       logging("User wants to start playing");
       mode = PLAYING;
 
@@ -104,10 +118,12 @@ void loop()
       // Lets get starting with warning the user that we are about to start ;)
       logging("Init done. Now lets warn the user");
       for (int i = 0; i < 10; i++) {
-        digitalWrite(START_LED, (i % 2 == 0) ? HIGH : LOW);
+        digitalWrite(START_LED1, (i % 2 == 0) ? HIGH : LOW);
+        digitalWrite(START_LED2, (i % 2 == 0) ? HIGH : LOW);
         delay(1000);
       }
-      digitalWrite(START_LED, LOW);
+      digitalWrite(START_LED1, LOW);
+      digitalWrite(START_LED2, LOW);
       logging("Lets get started");
     }
   }
