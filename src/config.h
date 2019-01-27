@@ -19,38 +19,54 @@
 #define DEBUG true
 
 // Begin/end stops for player bars
-#define PLAYER1_BEGIN   1
-#define PLAYER1_END     1
-#define PLAYER2_BEGIN   1
-#define PLAYER2_END     1
+// X
+#define PLAYER1_BEGIN   2
+#define PLAYER1_END     3
+// Y
+#define PLAYER2_BEGIN   14
+#define PLAYER2_END     15
 
 // Begin/end stops for axis
-#define LONG_AXIS_BEGIN   1
-#define LONG_AXIS_END     1
-#define SHORT_AXIS_BEGIN  1
-#define SHORT_AXIS_END    1
+// Z
+#define LONG_AXIS_BEGIN   18
+#define LONG_AXIS_END     19
+// AUX 2
+#define SHORT_AXIS_BEGIN  65
+#define SHORT_AXIS_END    66
 
 // Motor settings for players
-#define PLAYER1_DIR   1
-#define PLAYER1_STEP  1
-#define PLAYER2_DIR   1
-#define PLAYER2_STEP  1
+// X
+#define PLAYER1_DIR   55
+#define PLAYER1_STEP  54
+#define PLAYER1_EN    38
+// Y
+#define PLAYER2_DIR   61
+#define PLAYER2_STEP  60
+#define PLAYER2_EN    58
 
 // Motor settings for axis
-#define LONG_AXIS_DIR   1
-#define LONG_AXIS_STEP  1
-#define SHORT_AXIS_DIR  1
-#define SHORT_AXIS_STEP 1
+// Z
+#define LONG_AXIS_DIR   48
+#define LONG_AXIS_STEP  46
+#define LONG_AXIS_EN    62
+// E
+#define SHORT_AXIS_DIR  28
+#define SHORT_AXIS_STEP 26
+#define SHORT_AXIS_EN   24
 
 // Buttons for going left/right with player pad
-#define PLAYER1_LEFT  1
-#define PLAYER1_RIGHT 1
-#define PLAYER2_LEFT  1
-#define PLAYER2_RIGHT 1
+#define PLAYER1_LEFT  42
+#define PLAYER1_RIGHT 44
+#define PLAYER2_LEFT  40
+#define PLAYER2_RIGHT 64
 
 // Start button + start LED in button (Will light on when no game is active)
-#define START_BUTTON  1
-#define START_LED     1
+// Aux 1
+#define START_BUTTON1  0
+#define START_BUTTON2  1
+// Heatbed connector
+#define START_LED1     8
+#define START_LED2     9
 
 // Shaft length for player/axis
 // Make sure these sizes are correct, as they are used for a lot of calculations!
