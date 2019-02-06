@@ -127,7 +127,7 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
         break;
 
       case 1:
-        return 50000; // TODO: Check correct value.
+        return newCurrent; // TODO: Check correct value.
         break;
       case 0:
         // Do nothing.
@@ -149,7 +149,7 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
         break;
 
       case 1:
-        return 50000; // TODO: Check correct value.
+        return newCurrent; // TODO: Check correct value.
         break;
       case 0:
         // Do nothing.

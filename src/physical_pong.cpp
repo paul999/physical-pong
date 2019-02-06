@@ -22,11 +22,15 @@ long player2_location = 0;
 long short_axis_location = 0;
 long long_axis_location = 0;
 int mode = WAITING_FOR_START;
+int current_long_direction = 0;
+int current_short_direction = 0;
 
 void setup()
 {
   Serial.begin(9600);
   logging("Starting up");
+
+  randomSeed(analogRead(0));
 
   pinMode(START_BUTTON1, INPUT);
   pinMode(START_BUTTON2, INPUT);
@@ -93,6 +97,51 @@ void loop()
     logging("Playing");
     digitalWrite(START_LED1, LOW);
     digitalWrite(START_LED2, LOW);
+
+    if (digitalRead(LONG_AXIS_BEGIN) == LOW)
+    {
+      // Check if player1 is in the right spot.
+      // Todo: add checking code. For now we just go back
+      current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
+    }
+    else if (digitalRead(LONG_AXIS_END) == LOW)
+    {
+      // Check if player2 is in the right spot.
+      // Todo: add checking code. For now we just go back
+      current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
+    }
+    else if (digitalRead(SHORT_AXIS_BEGIN) == LOW || digitalRead(SHORT_AXIS_END))
+    {
+      current_short_direction = (current_short_direction == HIGH) ? LOW : HIGH;
+    }
+
+    // Time to do the actual movement.
+    // But, only when we are still playing. (We might have just lost ;))
+    if (mode == PLAYING)
+    {
+      int loc = long_axis_location;
+      if (current_long_direction == HIGH)
+      {
+        loc++;
+      }
+      else
+      {
+        loc--;
+      }
+      long_axis_location = moveMotorToLocation(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END, loc, long_axis_location);
+      loc = short_axis_location;
+      if (current_short_direction == HIGH)
+      {
+        loc++;
+      }
+      else
+      {
+        loc--;
+      }
+      short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, player2_location);
+
+      // Todo: Player movements.
+    }
   }
   else
   {
@@ -118,6 +167,10 @@ void loop()
       loc = (SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
       short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, player2_location);
 
+      // Decide to which directory we go to
+      current_long_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
+      current_short_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
+
       disableMotor(true);
       // Lets get starting with warning the user that we are about to start ;)
       logging("Init done. Now lets warn the user");
@@ -129,6 +182,7 @@ void loop()
       }
       digitalWrite(START_LED1, LOW);
       digitalWrite(START_LED2, LOW);
+      disableMotor(false);
       logging("Lets get started");
     }
   }
