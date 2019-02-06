@@ -88,7 +88,6 @@ void setup()
 
 void loop()
 {
-  //  return;
   if (mode == PLAYING)
   {
     logging("Playing");

@@ -29,9 +29,9 @@ int moveSequence(int motor, int end, int start)
     return -1;
   }
   digitalWrite(motor, HIGH);
-  delayMicroseconds(300);
+  delayMicroseconds(500);
   digitalWrite(motor, LOW);
-  delayMicroseconds(300);
+  delayMicroseconds(500);
   return 0;
 }
 void disableMotor(bool status)
@@ -88,9 +88,9 @@ long moveMotorToStart(int motor, int directionPin, int startPin, int endPin)
       return 0;
     }
     digitalWrite(motor, HIGH);
-    delayMicroseconds(300);
+    delayMicroseconds(500);
     digitalWrite(motor, LOW);
-    delayMicroseconds(300);
+    delayMicroseconds(500);
   }
 }
 
