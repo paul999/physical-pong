@@ -81,14 +81,14 @@ void setup()
   loc = (SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
   short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, short_axis_location);
 
-disableMotor(true);
+  disableMotor(true);
 
   logging("Startup done. Now time to startup the loop");
 }
 
 void loop()
 {
-  return;
+  //  return;
   if (mode == PLAYING)
   {
     logging("Playing");
@@ -118,12 +118,12 @@ void loop()
       long_axis_location = moveMotorToLocation(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END, loc, long_axis_location);
       loc = (SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
       short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, player2_location);
-    
 
       disableMotor(true);
       // Lets get starting with warning the user that we are about to start ;)
       logging("Init done. Now lets warn the user");
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 10; i++)
+      {
         digitalWrite(START_LED1, (i % 2 == 0) ? HIGH : LOW);
         digitalWrite(START_LED2, (i % 2 == 0) ? HIGH : LOW);
         delay(1000);

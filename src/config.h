@@ -62,18 +62,18 @@
 
 // Start button + start LED in button (Will light on when no game is active)
 // Aux 1
-#define START_BUTTON1  0
-#define START_BUTTON2  1
+#define START_BUTTON1  57
+#define START_BUTTON2  58
 // Heatbed connector
-#define START_LED1     8
-#define START_LED2     9
+#define START_LED1     9
+#define START_LED2     10
 
 // Shaft length for player/axis
 // Make sure these sizes are correct, as they are used for a lot of calculations!
 #define PLAYER_LENGTH 280
 #define LONG_AXIS_LENGTH 480
 #define SHORT_AXIS_LENGTH 280
-#define STEPS_PER_MM 20
+#define STEPS_PER_MM 12.5
 
 // Size of the player (Only width) blocks and actual block. Please keep in mind that the block should be square.
 #define PLAYER_SIZE 45
