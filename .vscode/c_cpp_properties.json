@@ -77,17 +77,17 @@
             },
             "defines": [
                 "PLATFORMIO=30604",
-                "ARDUINO_AVR_MEGA",
+                "ARDUINO_AVR_MEGA2560",
                 "F_CPU=16000000L",
                 "ARDUINO_ARCH_AVR",
                 "ARDUINO=10805",
-                "__AVR_ATmega1280__",
+                "__AVR_ATmega2560__",
                 ""
             ],
             "intelliSenseMode": "clang-x64",
             "cStandard": "c11",
             "cppStandard": "c++11",
-            "compilerPath": "C:/Users/paul/.platformio/packages/toolchain-atmelavr/bin/avr-gcc.exe -mmcu=atmega1280"
+            "compilerPath": "C:/Users/paul/.platformio/packages/toolchain-atmelavr/bin/avr-gcc.exe -mmcu=atmega2560"
         }
     ],
     "version": 4

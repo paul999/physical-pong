@@ -15,6 +15,7 @@
 #ifndef __MOTORCONTROL_H__
 #define __MOTORCONTROL_H__
 
+void disableMotor(bool status);
 long moveMotorToStart(int motor, int directionPin, int startPin, int endPin);
 long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, long location, long currentLocation);
 

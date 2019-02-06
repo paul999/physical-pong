@@ -20,8 +20,8 @@
 
 // Begin/end stops for player bars
 // X
-#define PLAYER1_BEGIN   2
-#define PLAYER1_END     3
+#define PLAYER1_BEGIN   3
+#define PLAYER1_END     2
 // Y
 #define PLAYER2_BEGIN   14
 #define PLAYER2_END     15
@@ -31,18 +31,18 @@
 #define LONG_AXIS_BEGIN   18
 #define LONG_AXIS_END     19
 // AUX 2
-#define SHORT_AXIS_BEGIN  65
-#define SHORT_AXIS_END    66
+#define SHORT_AXIS_BEGIN  18//65
+#define SHORT_AXIS_END    19//66
 
 // Motor settings for players
 // X
-#define PLAYER1_DIR   55
-#define PLAYER1_STEP  54
-#define PLAYER1_EN    38
+#define PLAYER1_DIR   55//55
+#define PLAYER1_STEP  54//54
+#define PLAYER1_EN    38//38
 // Y
-#define PLAYER2_DIR   61
-#define PLAYER2_STEP  60
-#define PLAYER2_EN    58
+#define PLAYER2_DIR   61//61
+#define PLAYER2_STEP  60//60
+#define PLAYER2_EN    56//56
 
 // Motor settings for axis
 // Z
@@ -73,7 +73,7 @@
 #define PLAYER_LENGTH 280
 #define LONG_AXIS_LENGTH 480
 #define SHORT_AXIS_LENGTH 280
-#define STEPS_PER_MM 200
+#define STEPS_PER_MM 20
 
 // Size of the player (Only width) blocks and actual block. Please keep in mind that the block should be square.
 #define PLAYER_SIZE 45

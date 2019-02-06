@@ -13,32 +13,49 @@
 */
 #include "Arduino.h"
 #include "log.h"
+#include "config.h"
 
-void moveSequence(int motor, int end, int start)
+int moveSequence(int motor, int end, int start)
 {
-  if (digitalRead(end) == HIGH || digitalRead(start) == HIGH)
+  if (digitalRead(end) == LOW)
   {
     // Huh, we did hit a end?
     logging("We did hit a endstop?");
-    return;
+    return 1;
+  }
+  if (digitalRead(digitalRead(start) == LOW))
+  {
+    logging("We did hit a start");
+    return -1;
   }
   digitalWrite(motor, HIGH);
   delayMicroseconds(300);
   digitalWrite(motor, LOW);
   delayMicroseconds(300);
+  return 0;
+}
+void disableMotor(bool status)
+{
+  int st = status ? HIGH : LOW;
+  digitalWrite(PLAYER1_EN, st);
+  digitalWrite(PLAYER2_EN, st);
+  digitalWrite(LONG_AXIS_EN, st);
+  digitalWrite(SHORT_AXIS_EN, st);
 }
 
 long moveMotorToStart(int motor, int directionPin, int startPin, int endPin)
 {
-  if (digitalRead(startPin) == HIGH)
+  if (digitalRead(startPin) == LOW)
   {
     // Motor is already in start Position.
+    logging("Motor is at start");
     return 0;
   }
   digitalWrite(directionPin, HIGH);
   boolean atEnd = false;
-  if (digitalRead(endPin) == HIGH)
+  if (digitalRead(endPin) == LOW)
   {
+    logging("Motor is at end");
     atEnd = true;
   }
 
@@ -51,20 +68,23 @@ long moveMotorToStart(int motor, int directionPin, int startPin, int endPin)
     {
       // 200 steps per mm, max length is ~500mm. So 200 * 500: 100000 should always result in the start!
       logging("Unable to get to start");
+      disableMotor(true);
       return -1;
     }
-    if (!atEnd && digitalRead(endPin) == HIGH)
+    if (!atEnd && digitalRead(endPin) == LOW)
     {
       logging("Looks like we hit a endstop while going to home. Wrongly configured?");
       logging("We will return now, but we are not in a save position!");
+      disableMotor(true);
       return -1;
     }
-    if (atEnd && digitalRead(endPin) == LOW)
+    if (atEnd && digitalRead(endPin) == HIGH)
     {
       atEnd = false;
     }
-    if (digitalRead(startPin) == HIGH)
+    if (digitalRead(startPin) == LOW)
     {
+      logging("Arrived at start :D");
       return 0;
     }
     digitalWrite(motor, HIGH);
@@ -98,9 +118,21 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
     diff *= -1;
     for (long i = 0; i < diff; i++)
     {
-      newCurrent -= 1;
+      newCurrent += 1;
+      int result = moveSequence(motor, endPin, startPin);
+      switch (result)
+      {
+      case -1:
+        return 0; // Start
+        break;
 
-      moveSequence(motor, endPin, startPin);
+      case 1:
+        return 50000; // TODO: Check correct value.
+        break;
+      case 0:
+        // Do nothing.
+        break;
+      }
     }
   }
   else
@@ -108,8 +140,21 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
     for (long i = 0; i < diff; i++)
     {
       newCurrent += 1;
+      int result = moveSequence(motor, endPin, startPin);
 
-      moveSequence(motor, endPin, startPin);
+      switch (result)
+      {
+      case -1:
+        return 0; // Start
+        break;
+
+      case 1:
+        return 50000; // TODO: Check correct value.
+        break;
+      case 0:
+        // Do nothing.
+        break;
+      }
     }
   }
 
