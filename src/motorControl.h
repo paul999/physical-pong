@@ -19,4 +19,11 @@ void disableMotor(bool status);
 long moveMotorToStart(int motor, int directionPin, int startPin, int endPin);
 long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, long location, long currentLocation);
 
+/**
+ * Please make sure that this method does no checking at all. You are responsible for making sure start/endstops are checked
+ * before calling this method!
+ * You are also responsible for setting the correct direction pins for each motor. This method will not set that.
+ */
+void moveSeveralMotorsOneStep(int number, int motor[]);
+
 #endif

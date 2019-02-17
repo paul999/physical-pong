@@ -25,6 +25,9 @@ int mode = WAITING_FOR_START;
 int current_long_direction = 0;
 int current_short_direction = 0;
 
+bool short_changed_previous = false;
+bool long_changed_previous = false;
+
 void setup()
 {
   Serial.begin(9600);
@@ -87,49 +90,101 @@ void loop()
     digitalWrite(START_LED1, LOW);
     digitalWrite(START_LED2, LOW);
 
-    if (digitalRead(LONG_AXIS_BEGIN) == LOW)
+    if (!long_changed_previous)
     {
-      // Check if player1 is in the right spot.
-      // Todo: add checking code. For now we just go back
-      current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
+      if (digitalRead(LONG_AXIS_BEGIN) == LOW)
+      {
+        // Check if player1 is in the right spot.
+        // Todo: add checking code. For now we just go back
+        current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
+        long_changed_previous = true;
+      }
+      else if (digitalRead(LONG_AXIS_END) == LOW)
+      {
+        // Check if player2 is in the right spot.
+        // Todo: add checking code. For now we just go back
+        current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
+        long_changed_previous = true;
+      }
     }
-    else if (digitalRead(LONG_AXIS_END) == LOW)
+    if (!short_changed_previous)
     {
-      // Check if player2 is in the right spot.
-      // Todo: add checking code. For now we just go back
-      current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
-    }
-    else if (digitalRead(SHORT_AXIS_BEGIN) == LOW || digitalRead(SHORT_AXIS_END))
-    {
-      current_short_direction = (current_short_direction == HIGH) ? LOW : HIGH;
+      if (digitalRead(SHORT_AXIS_BEGIN) == LOW || digitalRead(SHORT_AXIS_END) == LOW)
+      {
+        current_short_direction = (current_short_direction == HIGH) ? LOW : HIGH;
+      }
     }
 
     // Time to do the actual movement.
     // But, only when we are still playing. (We might have just lost ;))
     if (mode == PLAYING)
     {
-      int loc = long_axis_location;
-      if (current_long_direction == HIGH)
-      {
-        loc++;
-      }
-      else
-      {
-        loc--;
-      }
-      long_axis_location = moveMotorToLocation(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END, loc, long_axis_location);
-      loc = short_axis_location;
-      if (current_short_direction == HIGH)
-      {
-        loc++;
-      }
-      else
-      {
-        loc--;
-      }
-      short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, player2_location);
+      int number = 2;
+      int motors[4];
+      motors[0] = LONG_AXIS_STEP;
+      motors[1] = SHORT_AXIS_STEP;
+      digitalWrite(LONG_AXIS_DIR, current_long_direction);
+      digitalWrite(SHORT_AXIS_DIR, current_short_direction);
+      int p1 = 0;
+      int p2 = 0;
 
-      // Todo: Player movements.
+      if (digitalRead(PLAYER1_LEFT) == HIGH)
+      {
+        // TODO: Set dir.
+        motors[number] = PLAYER1_STEP;
+        number++;
+        p1 = -1;
+      }
+      else if (digitalRead(PLAYER1_RIGHT))
+      {
+        // TODO: Set dir.
+        motors[number] = PLAYER1_STEP;
+        number++;
+        p1 = 1;
+      }
+
+      if (digitalRead(PLAYER2_LEFT) == HIGH)
+      {
+        // TODO: Set dir.
+        motors[number] = PLAYER2_STEP;
+        number++;
+        p2 = 1;
+      }
+      else if (digitalRead(PLAYER2_RIGHT))
+      {
+        // TODO: Set dir.
+        motors[number] = PLAYER2_STEP;
+        number++;
+        p2 = -1;
+      }
+      moveSeveralMotorsOneStep(number, motors);
+
+      player1_location = player1_location + p1;
+      player2_location = player2_location + p2;
+      long_axis_location = long_axis_location + (current_long_direction == HIGH ? 1 : -1);
+      short_axis_location = short_axis_location + (current_short_direction == HIGH ? 1 : -1);
+
+      // Check some of the locations we are at. We don't want negative locations and stuff.
+      if (long_axis_location < 0 || digitalRead(LONG_AXIS_BEGIN) == LOW)
+      {
+        // We are at the begin. Set the location to 0
+        long_axis_location = 0;
+      }
+      if (short_axis_location < 0 || digitalRead(SHORT_AXIS_BEGIN) == LOW)
+      {
+        // We are at the begin. Set the location to 0
+        short_axis_location = 0;
+      }
+      if (player1_location < 0 || digitalRead(PLAYER1_BEGIN) == LOW)
+      {
+        // We are at the begin. Set the location to 0
+        player1_location = 0;
+      }
+      if (player2_location < 0 || digitalRead(PLAYER2_BEGIN) == LOW)
+      {
+        // We are at the begin. Set the location to 0
+        player2_location = 0;
+      }
     }
   }
   else
