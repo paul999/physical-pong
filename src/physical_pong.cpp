@@ -70,20 +70,9 @@ void setup()
   player1_location = moveMotorToStart(PLAYER1_STEP, PLAYER1_DIR, PLAYER1_BEGIN, PLAYER1_END);
   player2_location = moveMotorToStart(PLAYER2_STEP, PLAYER2_DIR, PLAYER2_BEGIN, PLAYER2_END);
 
-  logging("Going to location");
-  long loc = (PLAYER_LENGTH - (PLAYER_SIZE / 2l)) * STEPS_PER_MM;
-  player1_location = moveMotorToLocation(PLAYER1_STEP, PLAYER1_DIR, PLAYER1_BEGIN, PLAYER1_END, loc, player1_location);
-  logging("Player2");
-  player2_location = moveMotorToLocation(PLAYER2_STEP, PLAYER2_DIR, PLAYER2_BEGIN, PLAYER2_END, loc, player2_location);
-
   logging("Moving axis");
   long_axis_location = moveMotorToStart(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END);
   short_axis_location = moveMotorToStart(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END);
-
-  loc = (LONG_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
-  long_axis_location = moveMotorToLocation(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END, loc, long_axis_location);
-  loc = (SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
-  short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, short_axis_location);
 
   disableMotor(true);
 
@@ -147,7 +136,6 @@ void loop()
   {
     digitalWrite(START_LED1, HIGH);
     digitalWrite(START_LED2, HIGH);
-    logging("Not playing");
 
     if (digitalRead(START_BUTTON1) == HIGH || digitalRead(START_BUTTON2) == HIGH)
     {
@@ -158,14 +146,25 @@ void loop()
 
       disableMotor(false);
 
+      // Lets first move to start to get a good base point
+      logging("Going to start now.");
+      player1_location = moveMotorToStart(PLAYER1_STEP, PLAYER1_DIR, PLAYER1_BEGIN, PLAYER1_END);
+      player2_location = moveMotorToStart(PLAYER2_STEP, PLAYER2_DIR, PLAYER2_BEGIN, PLAYER2_END);
+
+      long_axis_location = moveMotorToStart(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END);
+      short_axis_location = moveMotorToStart(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END);
+
+      logging("Going to center position.");
+
       long loc = (PLAYER_LENGTH - (PLAYER_SIZE / 2l)) * STEPS_PER_MM;
       player1_location = moveMotorToLocation(PLAYER1_STEP, PLAYER1_DIR, PLAYER1_BEGIN, PLAYER1_END, loc, player1_location);
       player2_location = moveMotorToLocation(PLAYER2_STEP, PLAYER2_DIR, PLAYER2_BEGIN, PLAYER2_END, loc, player2_location);
 
       loc = (LONG_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
       long_axis_location = moveMotorToLocation(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END, loc, long_axis_location);
+
       loc = (SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
-      short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, player2_location);
+      short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, short_axis_location);
 
       // Decide to which directory we go to
       current_long_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
@@ -178,7 +177,7 @@ void loop()
       {
         digitalWrite(START_LED1, (i % 2 == 0) ? HIGH : LOW);
         digitalWrite(START_LED2, (i % 2 == 0) ? HIGH : LOW);
-        delay(1000);
+        delay(250);
       }
       digitalWrite(START_LED1, LOW);
       digitalWrite(START_LED2, LOW);

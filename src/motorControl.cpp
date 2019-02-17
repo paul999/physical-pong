@@ -17,21 +17,23 @@
 
 int moveSequence(int motor, int end, int start)
 {
+  digitalWrite(motor, HIGH);
+  delayMicroseconds(500);
+  digitalWrite(motor, LOW);
+  delayMicroseconds(500);
+
   if (digitalRead(end) == LOW)
   {
     // Huh, we did hit a end?
     logging("We did hit a endstop?");
     return 1;
   }
-  if (digitalRead(digitalRead(start) == LOW))
+  if (digitalRead(start) == LOW)
   {
     logging("We did hit a start");
     return -1;
   }
-  digitalWrite(motor, HIGH);
-  delayMicroseconds(500);
-  digitalWrite(motor, LOW);
-  delayMicroseconds(500);
+
   return 0;
 }
 void disableMotor(bool status)
@@ -112,6 +114,8 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
   long newCurrent = currentLocation;
 
   long diff = location - currentLocation;
+  Serial.println("diff:");
+  Serial.println(diff);
 
   if (diff < 0)
   {
@@ -123,7 +127,7 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
       switch (result)
       {
       case -1:
-        return 0; // Start
+        //return 0; // Start
         break;
 
       case 1:
@@ -145,7 +149,7 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
       switch (result)
       {
       case -1:
-        return 0; // Start
+        //return 0; // Start
         break;
 
       case 1:

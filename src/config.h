@@ -22,17 +22,17 @@
 // X
 #define PLAYER1_BEGIN   3
 #define PLAYER1_END     2
-// Y
-#define PLAYER2_BEGIN   14
-#define PLAYER2_END     15
+// Z
+#define PLAYER2_BEGIN   18
+#define PLAYER2_END     19
 
 // Begin/end stops for axis
-// Z
-#define LONG_AXIS_BEGIN   18
-#define LONG_AXIS_END     19
+// y
+#define LONG_AXIS_BEGIN   14
+#define LONG_AXIS_END     15
 // AUX 2
-#define SHORT_AXIS_BEGIN  18//65
-#define SHORT_AXIS_END    19//66
+#define SHORT_AXIS_BEGIN  16//65
+#define SHORT_AXIS_END    17//66
 
 // Motor settings for players
 // X
@@ -55,10 +55,10 @@
 #define SHORT_AXIS_EN   24
 
 // Buttons for going left/right with player pad
-#define PLAYER1_LEFT  42
-#define PLAYER1_RIGHT 44
-#define PLAYER2_LEFT  40
-#define PLAYER2_RIGHT 64
+#define PLAYER1_LEFT  23
+#define PLAYER1_RIGHT 25
+#define PLAYER2_LEFT  27
+#define PLAYER2_RIGHT 29    	
 
 // Start button + start LED in button (Will light on when no game is active)
 // Aux 1
@@ -73,7 +73,7 @@
 #define PLAYER_LENGTH 280
 #define LONG_AXIS_LENGTH 480
 #define SHORT_AXIS_LENGTH 280
-#define STEPS_PER_MM 12.5
+#define STEPS_PER_MM 2.5
 
 // Size of the player (Only width) blocks and actual block. Please keep in mind that the block should be square.
 #define PLAYER_SIZE 45
