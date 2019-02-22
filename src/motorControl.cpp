@@ -167,14 +167,14 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
 
 void moveSeveralMotorsOneStep(int number, int motor[])
 {
-  for (int i = 0; i < number - 1; i++)
+  for (int i = 0; i < number ; i++)
   {
     digitalWrite(motor[i], HIGH);
   }
-  delayMicroseconds(500);
-  for (int i = 0; i < number - 1; i++)
+  delayMicroseconds(750);
+  for (int i = 0; i < number; i++)
   {
     digitalWrite(motor[i], LOW);
   }
-  delayMicroseconds(500);
+  delayMicroseconds(700);
 }

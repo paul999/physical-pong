@@ -86,7 +86,6 @@ void loop()
 {
   if (mode == PLAYING)
   {
-    logging("Playing");
     digitalWrite(START_LED1, LOW);
     digitalWrite(START_LED2, LOW);
 
@@ -98,6 +97,7 @@ void loop()
         // Todo: add checking code. For now we just go back
         current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
         long_changed_previous = true;
+        logging("changing dir");
       }
       else if (digitalRead(LONG_AXIS_END) == LOW)
       {
@@ -105,14 +105,21 @@ void loop()
         // Todo: add checking code. For now we just go back
         current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
         long_changed_previous = true;
+        logging("Changing dir");
       }
+    }
+    else if (digitalRead(LONG_AXIS_END) == HIGH && digitalRead(LONG_AXIS_BEGIN) == HIGH) {
+      long_changed_previous = false;
     }
     if (!short_changed_previous)
     {
       if (digitalRead(SHORT_AXIS_BEGIN) == LOW || digitalRead(SHORT_AXIS_END) == LOW)
       {
         current_short_direction = (current_short_direction == HIGH) ? LOW : HIGH;
+        short_changed_previous = true;
       }
+    } else {
+      long_changed_previous = false;
     }
 
     // Time to do the actual movement.
@@ -224,6 +231,9 @@ void loop()
       // Decide to which directory we go to
       current_long_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
       current_short_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
+
+      digitalWrite(LONG_AXIS_DIR, current_long_direction);
+      digitalWrite(SHORT_AXIS_DIR, current_short_direction);
 
       disableMotor(true);
       // Lets get starting with warning the user that we are about to start ;)
