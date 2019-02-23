@@ -15,6 +15,8 @@
 #include "Arduino.h"
 #include "config.h"
 #include "motorControl.h"
+#include "endstops.h"
+#include "axis.h"
 #include "log.h"
 
 long player1_location = 0;
@@ -30,52 +32,27 @@ bool long_changed_previous = false;
 
 void setup()
 {
+  //cli();
   Serial.begin(9600);
   logging("Starting up");
 
+  setupPins();
+  setupTimer();
+  
   randomSeed(analogRead(0));
 
-  pinMode(START_BUTTON1, INPUT);
-  pinMode(START_BUTTON2, INPUT);
-  pinMode(PLAYER1_BEGIN, INPUT);
-  pinMode(PLAYER1_END, INPUT);
-  pinMode(PLAYER2_BEGIN, INPUT);
-  pinMode(PLAYER2_END, INPUT);
-  pinMode(LONG_AXIS_BEGIN, INPUT);
-  pinMode(LONG_AXIS_END, INPUT);
-  pinMode(SHORT_AXIS_BEGIN, INPUT);
-  pinMode(SHORT_AXIS_END, INPUT);
-  pinMode(PLAYER1_LEFT, INPUT);
-  pinMode(PLAYER1_RIGHT, INPUT);
-  pinMode(PLAYER2_LEFT, INPUT);
-  pinMode(PLAYER2_RIGHT, INPUT);
-
-  pinMode(PLAYER1_DIR, OUTPUT);
-  pinMode(PLAYER1_STEP, OUTPUT);
-  pinMode(PLAYER1_EN, OUTPUT);
-  pinMode(PLAYER2_DIR, OUTPUT);
-  pinMode(PLAYER2_STEP, OUTPUT);
-  pinMode(PLAYER2_EN, OUTPUT);
-  pinMode(LONG_AXIS_DIR, OUTPUT);
-  pinMode(LONG_AXIS_STEP, OUTPUT);
-  pinMode(LONG_AXIS_EN, OUTPUT);
-  pinMode(SHORT_AXIS_DIR, OUTPUT);
-  pinMode(SHORT_AXIS_STEP, OUTPUT);
-  pinMode(SHORT_AXIS_EN, OUTPUT);
-  pinMode(START_LED1, OUTPUT);
-  pinMode(START_LED2, OUTPUT);
   logging("Startup done");
 
   disableMotor(false);
 
   logging("Going to start positions");
 
-  player1_location = moveMotorToStart(PLAYER1_STEP, PLAYER1_DIR, PLAYER1_BEGIN, PLAYER1_END);
-  player2_location = moveMotorToStart(PLAYER2_STEP, PLAYER2_DIR, PLAYER2_BEGIN, PLAYER2_END);
+  player1_location = moveMotorToStart(aplayer1);
+  player2_location = moveMotorToStart(aplayer2);
 
   logging("Moving axis");
-  long_axis_location = moveMotorToStart(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END);
-  short_axis_location = moveMotorToStart(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END);
+  long_axis_location = moveMotorToStart(along);
+  short_axis_location = moveMotorToStart(ashort);
 
   disableMotor(true);
 
@@ -88,48 +65,16 @@ void loop()
   {
     digitalWrite(START_LED1, LOW);
     digitalWrite(START_LED2, LOW);
-
-    if (!long_changed_previous)
-    {
-      if (digitalRead(LONG_AXIS_BEGIN) == LOW)
-      {
-        // Check if player1 is in the right spot.
-        // Todo: add checking code. For now we just go back
-        current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
-        long_changed_previous = true;
-        logging("changing dir");
-      }
-      else if (digitalRead(LONG_AXIS_END) == LOW)
-      {
-        // Check if player2 is in the right spot.
-        // Todo: add checking code. For now we just go back
-        current_long_direction = (current_long_direction == HIGH) ? LOW : HIGH;
-        long_changed_previous = true;
-        logging("Changing dir");
-      }
-    }
-    else if (digitalRead(LONG_AXIS_END) == HIGH && digitalRead(LONG_AXIS_BEGIN) == HIGH) {
-      long_changed_previous = false;
-    }
-    if (!short_changed_previous)
-    {
-      if (digitalRead(SHORT_AXIS_BEGIN) == LOW || digitalRead(SHORT_AXIS_END) == LOW)
-      {
-        current_short_direction = (current_short_direction == HIGH) ? LOW : HIGH;
-        short_changed_previous = true;
-      }
-    } else {
-      long_changed_previous = false;
-    }
-
     // Time to do the actual movement.
     // But, only when we are still playing. (We might have just lost ;))
     if (mode == PLAYING)
     {
-      int number = 2;
-      int motors[4];
-      motors[0] = LONG_AXIS_STEP;
-      motors[1] = SHORT_AXIS_STEP;
+      movement mv;
+      mv.along = HIGH;
+      mv.ashort = HIGH;
+      mv.aplayer1 = LOW;
+      mv.aplayer2 = LOW;
+      
       digitalWrite(LONG_AXIS_DIR, current_long_direction);
       digitalWrite(SHORT_AXIS_DIR, current_short_direction);
       int p1 = 0;
@@ -137,34 +82,30 @@ void loop()
 
       if (digitalRead(PLAYER1_LEFT) == HIGH)
       {
-        // TODO: Set dir.
-        motors[number] = PLAYER1_STEP;
-        number++;
+        digitalWrite(PLAYER1_DIR, HIGH);
+        mv.aplayer1 = HIGH;
         p1 = -1;
       }
-      else if (digitalRead(PLAYER1_RIGHT))
+      else if (digitalRead(PLAYER1_RIGHT) == HIGH)
       {
-        // TODO: Set dir.
-        motors[number] = PLAYER1_STEP;
-        number++;
+        digitalWrite(PLAYER1_DIR, LOW);
+        mv.aplayer1 = HIGH;
         p1 = 1;
       }
 
       if (digitalRead(PLAYER2_LEFT) == HIGH)
       {
-        // TODO: Set dir.
-        motors[number] = PLAYER2_STEP;
-        number++;
+        digitalWrite(PLAYER2_DIR, HIGH);
+        mv.aplayer2 = HIGH;
         p2 = 1;
       }
-      else if (digitalRead(PLAYER2_RIGHT))
+      else if (digitalRead(PLAYER2_RIGHT) == HIGH)
       {
-        // TODO: Set dir.
-        motors[number] = PLAYER2_STEP;
-        number++;
+        digitalWrite(PLAYER2_DIR, LOW);
+        mv.aplayer2 = HIGH;
         p2 = -1;
       }
-      moveSeveralMotorsOneStep(number, motors);
+      moveSeveralMotorsOneStep(mv);
 
       player1_location = player1_location + p1;
       player2_location = player2_location + p2;
@@ -172,16 +113,25 @@ void loop()
       short_axis_location = short_axis_location + (current_short_direction == HIGH ? 1 : -1);
 
       // Check some of the locations we are at. We don't want negative locations and stuff.
-      if (long_axis_location < 0 || digitalRead(LONG_AXIS_BEGIN) == LOW)
+      if (long_axis_location < 0)
       {
-        // We are at the begin. Set the location to 0
         long_axis_location = 0;
       }
-      if (short_axis_location < 0 || digitalRead(SHORT_AXIS_BEGIN) == LOW)
+      if (short_axis_location < 0)
       {
-        // We are at the begin. Set the location to 0
         short_axis_location = 0;
       }
+      if (readStop(along, start) == HIT || readStop(along, end) == HIT)
+      {
+        current_long_direction = current_long_direction == HIGH ? LOW : HIGH;
+        Serial.println("Something hit (LONG). Turning");
+      }
+      if (readStop(ashort, start) == HIT || readStop(ashort, end) == HIT)
+      {
+        current_short_direction = current_short_direction == HIGH ? LOW : HIGH;
+        logging("Something hit (SHORT). Turning");
+      }
+
       if (player1_location < 0 || digitalRead(PLAYER1_BEGIN) == LOW)
       {
         // We are at the begin. Set the location to 0
@@ -210,27 +160,29 @@ void loop()
 
       // Lets first move to start to get a good base point
       logging("Going to start now.");
-      player1_location = moveMotorToStart(PLAYER1_STEP, PLAYER1_DIR, PLAYER1_BEGIN, PLAYER1_END);
-      player2_location = moveMotorToStart(PLAYER2_STEP, PLAYER2_DIR, PLAYER2_BEGIN, PLAYER2_END);
+      player1_location = moveMotorToStart(aplayer1);
+      player2_location = moveMotorToStart(aplayer2);
 
-      long_axis_location = moveMotorToStart(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END);
-      short_axis_location = moveMotorToStart(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END);
+      long_axis_location = moveMotorToStart(along);
+      short_axis_location = moveMotorToStart(ashort);
 
       logging("Going to center position.");
 
       long loc = (PLAYER_LENGTH - (PLAYER_SIZE / 2l)) * STEPS_PER_MM;
-      player1_location = moveMotorToLocation(PLAYER1_STEP, PLAYER1_DIR, PLAYER1_BEGIN, PLAYER1_END, loc, player1_location);
-      player2_location = moveMotorToLocation(PLAYER2_STEP, PLAYER2_DIR, PLAYER2_BEGIN, PLAYER2_END, loc, player2_location);
+      player1_location = moveMotorToLocation(aplayer1, loc, player1_location);
+      player2_location = moveMotorToLocation(aplayer2, loc, player2_location);
 
       loc = (LONG_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
-      long_axis_location = moveMotorToLocation(LONG_AXIS_STEP, LONG_AXIS_DIR, LONG_AXIS_BEGIN, LONG_AXIS_END, loc, long_axis_location);
+      long_axis_location = moveMotorToLocation(along, loc, long_axis_location);
 
       loc = (SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
-      short_axis_location = moveMotorToLocation(SHORT_AXIS_STEP, SHORT_AXIS_DIR, SHORT_AXIS_BEGIN, SHORT_AXIS_END, loc, short_axis_location);
+      short_axis_location = moveMotorToLocation(ashort, loc, short_axis_location);
 
       // Decide to which directory we go to
       current_long_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
       current_short_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
+      short_changed_previous = false;
+      long_changed_previous = false;
 
       digitalWrite(LONG_AXIS_DIR, current_long_direction);
       digitalWrite(SHORT_AXIS_DIR, current_short_direction);

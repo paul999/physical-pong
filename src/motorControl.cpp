@@ -14,21 +14,24 @@
 #include "Arduino.h"
 #include "log.h"
 #include "config.h"
+#include "endstops.h"
+#include "axis.h"
+#include "motorControl.h"
 
-int moveSequence(int motor, int end, int start)
+int moveSequence(axis moveAxis)
 {
-  digitalWrite(motor, HIGH);
-  delayMicroseconds(500);
-  digitalWrite(motor, LOW);
-  delayMicroseconds(500);
+  digitalWrite(getPin(stepPin, moveAxis), HIGH);
+  delayMicroseconds(300);
+  digitalWrite(getPin(stepPin, moveAxis), LOW);
+  delayMicroseconds(300);
 
-  if (digitalRead(end) == LOW)
+  if (readStop(moveAxis, end))
   {
     // Huh, we did hit a end?
     logging("We did hit a endstop?");
     return 1;
   }
-  if (digitalRead(start) == LOW)
+  if (readStop(moveAxis, start))
   {
     logging("We did hit a start");
     return -1;
@@ -45,21 +48,22 @@ void disableMotor(bool status)
   digitalWrite(SHORT_AXIS_EN, st);
 }
 
-long moveMotorToStart(int motor, int directionPin, int startPin, int endPin)
+long moveMotorToStart(axis moveAxis)
 {
-  if (digitalRead(startPin) == LOW)
+  if (readStop(moveAxis, start) == HIT)
   {
     // Motor is already in start Position.
     logging("Motor is at start");
     return 0;
   }
-  digitalWrite(directionPin, HIGH);
+  digitalWrite(getPin(dirPin, moveAxis), HIGH);
   boolean atEnd = false;
-  if (digitalRead(endPin) == LOW)
+  if (readStop(moveAxis, end) == HIT)
   {
     logging("Motor is at end");
     atEnd = true;
   }
+  logging("Starting loop");
 
   long i = 0;
 
@@ -73,30 +77,30 @@ long moveMotorToStart(int motor, int directionPin, int startPin, int endPin)
       disableMotor(true);
       return -1;
     }
-    if (!atEnd && digitalRead(endPin) == LOW)
+    if (!atEnd && readStop(moveAxis, end) == HIT)
     {
       logging("Looks like we hit a endstop while going to home. Wrongly configured?");
       logging("We will return now, but we are not in a save position!");
       disableMotor(true);
       return -1;
     }
-    if (atEnd && digitalRead(endPin) == HIGH)
+    if (atEnd && readStop(moveAxis, end) == MISSED)
     {
       atEnd = false;
     }
-    if (digitalRead(startPin) == LOW)
+    if (readStop(moveAxis, start) == HIT)
     {
       logging("Arrived at start :D");
       return 0;
     }
-    digitalWrite(motor, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(motor, LOW);
-    delayMicroseconds(500);
+    digitalWrite(getPin(stepPin, moveAxis), HIGH);
+    delayMicroseconds(200);
+    digitalWrite(getPin(stepPin, moveAxis), LOW);
+    delayMicroseconds(200);
   }
 }
 
-long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, long location, long currentLocation)
+long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
 {
   if (location == currentLocation)
   {
@@ -104,11 +108,11 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
   }
   if (location <= currentLocation)
   {
-    digitalWrite(directionPin, HIGH);
+    digitalWrite(getPin(dirPin, moveAxis), HIGH);
   }
   else
   {
-    digitalWrite(directionPin, LOW);
+    digitalWrite(getPin(dirPin, moveAxis), LOW);
   }
 
   long newCurrent = currentLocation;
@@ -123,7 +127,7 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
     for (long i = 0; i < diff; i++)
     {
       newCurrent += 1;
-      int result = moveSequence(motor, endPin, startPin);
+      int result = moveSequence(moveAxis);
       switch (result)
       {
       case -1:
@@ -144,7 +148,7 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
     for (long i = 0; i < diff; i++)
     {
       newCurrent += 1;
-      int result = moveSequence(motor, endPin, startPin);
+      int result = moveSequence(moveAxis);
 
       switch (result)
       {
@@ -165,16 +169,16 @@ long moveMotorToLocation(int motor, int directionPin, int startPin, int endPin, 
   return newCurrent;
 }
 
-void moveSeveralMotorsOneStep(int number, int motor[])
+void moveSeveralMotorsOneStep(movement mv)
 {
-  for (int i = 0; i < number ; i++)
-  {
-    digitalWrite(motor[i], HIGH);
-  }
+  digitalWrite(getPin(stepPin, along), mv.along);
+  digitalWrite(getPin(stepPin, ashort), mv.ashort);
+  digitalWrite(getPin(stepPin, aplayer1), mv.aplayer1);
+  digitalWrite(getPin(stepPin, aplayer2), mv.aplayer2);
   delayMicroseconds(750);
-  for (int i = 0; i < number; i++)
-  {
-    digitalWrite(motor[i], LOW);
-  }
+  digitalWrite(getPin(stepPin, along), LOW);
+  digitalWrite(getPin(stepPin, ashort), LOW);
+  digitalWrite(getPin(stepPin, aplayer1), LOW);
+  digitalWrite(getPin(stepPin, aplayer2), LOW);
   delayMicroseconds(700);
 }

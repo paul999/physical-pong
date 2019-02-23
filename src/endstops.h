@@ -12,27 +12,15 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __MOTORCONTROL_H__
-#define __MOTORCONTROL_H__
+#ifndef __ENDSTOPS_H__
+#define __ENDSTOPS_H__
+
 #include "axis.h"
 
-void disableMotor(bool status);
+#define HIT 1
+#define MISSED 0
 
-long moveMotorToStart(axis moveAxis);
-long moveMotorToLocation(axis moveAxis, long location, long currentLocation);
-
-typedef struct {
-    int ashort;
-    int along;
-    int aplayer1;
-    int aplayer2;
-} movement;
-
-/**
- * Please make sure that this method does no checking at all. You are responsible for making sure start/endstops are checked
- * before calling this method!
- * You are also responsible for setting the correct direction pins for each motor. This method will not set that.
- */
-void moveSeveralMotorsOneStep(movement mv);
+void setupTimer();
+int readStop(axis axis, type type);
 
 #endif
