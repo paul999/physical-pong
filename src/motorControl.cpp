@@ -11,6 +11,7 @@
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 #include "Arduino.h"
 #include "log.h"
 #include "config.h"
@@ -21,9 +22,9 @@
 int moveSequence(axis moveAxis)
 {
   digitalWrite(getPin(stepPin, moveAxis), HIGH);
-  delayMicroseconds(300);
+  delayMicroseconds(500);
   digitalWrite(getPin(stepPin, moveAxis), LOW);
-  delayMicroseconds(300);
+  delayMicroseconds(500);
 
   if (readStop(moveAxis, end))
   {
@@ -94,9 +95,9 @@ long moveMotorToStart(axis moveAxis)
       return 0;
     }
     digitalWrite(getPin(stepPin, moveAxis), HIGH);
-    delayMicroseconds(200);
+    delayMicroseconds(500);
     digitalWrite(getPin(stepPin, moveAxis), LOW);
-    delayMicroseconds(200);
+    delayMicroseconds(500);
   }
 }
 
@@ -175,10 +176,10 @@ void moveSeveralMotorsOneStep(movement mv)
   digitalWrite(getPin(stepPin, ashort), mv.ashort);
   digitalWrite(getPin(stepPin, aplayer1), mv.aplayer1);
   digitalWrite(getPin(stepPin, aplayer2), mv.aplayer2);
-  delayMicroseconds(750);
+  delayMicroseconds(650);
   digitalWrite(getPin(stepPin, along), LOW);
   digitalWrite(getPin(stepPin, ashort), LOW);
   digitalWrite(getPin(stepPin, aplayer1), LOW);
   digitalWrite(getPin(stepPin, aplayer2), LOW);
-  delayMicroseconds(700);
+  delayMicroseconds(600);
 }

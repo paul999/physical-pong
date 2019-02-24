@@ -24,22 +24,31 @@ int longstartAr[7];
 int longendAr[7];
 int player1startAr[7];
 int player1endAr[7];
-int player2startAr[7]; 
+int player2startAr[7];
 int player2endAr[7];
 int counter = 0;
 
-int shortStartPin = getPin(startPin, ashort);
-int shortEndPin = getPin(endPin, ashort);
-int longStartPin = getPin(startPin, along);
-int longEndPin = getPin(endPin, along);
-int player1StartPin = getPin(startPin, aplayer1);
-int player1EndPin = getPin(endPin, aplayer1);
-int player2StartPin = getPin(startPin, aplayer2);
-int player2EndPin = getPin(endPin, aplayer2);
+int shortStartPin;
+int shortEndPin;
+int longStartPin;
+int longEndPin;
+int player1StartPin;
+int player1EndPin;
+int player2StartPin;
+int player2EndPin;
 
 void setupTimer()
 {
     logging("Disabled interupts. Starting up timers");
+    shortStartPin = getPin(startPin, ashort);
+    shortEndPin = getPin(endPin, ashort);
+    longStartPin = getPin(startPin, along);
+    longEndPin = getPin(endPin, along);
+    player1StartPin = getPin(startPin, aplayer1);
+    player1EndPin = getPin(endPin, aplayer1);
+    player2StartPin = getPin(startPin, aplayer2);
+    player2EndPin = getPin(endPin, aplayer2);
+
     // Setup start registers for noise reduction
     for (int i = 0; i < 7; i++)
     {

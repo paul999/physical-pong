@@ -30,11 +30,14 @@ typedef struct
 
 SimpleMap<axis, axisData> *aData = new SimpleMap<axis, axisData>([](axis &a, axisData &b) -> int {
     if (a == b.axisName)
+    {
         return 0; // a and b are equal
+    }
     else if (a > b.axisName)
+    {
         return 1; // a is bigger than b
-    else
-        return -1; // a is smaller than b
+    }
+    return -1; // a is smaller than b
 });
 
 axisData initData(axis axis, int dir, int step, int enable, int end, int st)

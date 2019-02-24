@@ -27,18 +27,18 @@ int mode = WAITING_FOR_START;
 int current_long_direction = 0;
 int current_short_direction = 0;
 
-bool short_changed_previous = false;
-bool long_changed_previous = false;
+int short_last_change = 0;
+int long_last_change = 0;
+int steps_min_needed = 20; //ceil(STEPS_PER_MM * 3);
 
 void setup()
 {
-  //cli();
+  cli();
   Serial.begin(9600);
   logging("Starting up");
-
   setupPins();
   setupTimer();
-  
+
   randomSeed(analogRead(0));
 
   logging("Startup done");
@@ -74,34 +74,34 @@ void loop()
       mv.ashort = HIGH;
       mv.aplayer1 = LOW;
       mv.aplayer2 = LOW;
-      
+
       digitalWrite(LONG_AXIS_DIR, current_long_direction);
       digitalWrite(SHORT_AXIS_DIR, current_short_direction);
       int p1 = 0;
       int p2 = 0;
 
-      if (digitalRead(PLAYER1_LEFT) == HIGH)
+      if (digitalRead(PLAYER1_LEFT) == HIGH && readStop(aplayer1, start) == MISSED)
       {
         digitalWrite(PLAYER1_DIR, HIGH);
         mv.aplayer1 = HIGH;
         p1 = -1;
       }
-      else if (digitalRead(PLAYER1_RIGHT) == HIGH)
+      else if (digitalRead(PLAYER1_RIGHT) == HIGH && readStop(aplayer1, end) == MISSED)
       {
         digitalWrite(PLAYER1_DIR, LOW);
         mv.aplayer1 = HIGH;
         p1 = 1;
       }
 
-      if (digitalRead(PLAYER2_LEFT) == HIGH)
+      if (digitalRead(PLAYER2_LEFT) == HIGH && readStop(aplayer2, end) == MISSED)
       {
-        digitalWrite(PLAYER2_DIR, HIGH);
+        digitalWrite(PLAYER2_DIR, LOW);
         mv.aplayer2 = HIGH;
         p2 = 1;
       }
-      else if (digitalRead(PLAYER2_RIGHT) == HIGH)
+      else if (digitalRead(PLAYER2_RIGHT) == HIGH && readStop(aplayer2, start) == MISSED)
       {
-        digitalWrite(PLAYER2_DIR, LOW);
+        digitalWrite(PLAYER2_DIR, HIGH);
         mv.aplayer2 = HIGH;
         p2 = -1;
       }
@@ -116,31 +116,53 @@ void loop()
       if (long_axis_location < 0)
       {
         long_axis_location = 0;
+        logging("Warn: long axis went to < 0");
       }
       if (short_axis_location < 0)
       {
         short_axis_location = 0;
+        logging("Warn: short axis went to < 0");
       }
-      if (readStop(along, start) == HIT || readStop(along, end) == HIT)
+      long_last_change++;
+      if (long_last_change >= steps_min_needed)
       {
-        current_long_direction = current_long_direction == HIGH ? LOW : HIGH;
-        Serial.println("Something hit (LONG). Turning");
+        if (readStop(along, start) == HIT || readStop(along, end) == HIT)
+        {
+          current_long_direction = current_long_direction == HIGH ? LOW : HIGH;
+          logging("Something hit (LONG). Turning");
+          long_last_change = 0;
+        }
       }
-      if (readStop(ashort, start) == HIT || readStop(ashort, end) == HIT)
+      short_last_change++;
+      if (short_last_change >= steps_min_needed)
       {
-        current_short_direction = current_short_direction == HIGH ? LOW : HIGH;
-        logging("Something hit (SHORT). Turning");
+        if (readStop(ashort, start) == HIT || readStop(ashort, end) == HIT)
+        {
+          current_short_direction = current_short_direction == HIGH ? LOW : HIGH;
+          logging("Something hit (SHORT). Turning");
+          short_last_change = 0;
+        }
       }
 
-      if (player1_location < 0 || digitalRead(PLAYER1_BEGIN) == LOW)
+      if (readStop(aplayer1, start))
+      {
+        player1_location = 0;
+      }
+      if (readStop(aplayer2, start))
+      {
+        player2_location = 0;
+      }
+      if (player1_location < 0)
       {
         // We are at the begin. Set the location to 0
         player1_location = 0;
+        logging("Warn: player1 axis went to < 0");
       }
-      if (player2_location < 0 || digitalRead(PLAYER2_BEGIN) == LOW)
+      if (player2_location < 0)
       {
         // We are at the begin. Set the location to 0
         player2_location = 0;
+        logging("Warn: player2 axis went to < 0");
       }
     }
   }
@@ -181,8 +203,8 @@ void loop()
       // Decide to which directory we go to
       current_long_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
       current_short_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
-      short_changed_previous = false;
-      long_changed_previous = false;
+      short_last_change = 0;
+      long_last_change = 0;
 
       digitalWrite(LONG_AXIS_DIR, current_long_direction);
       digitalWrite(SHORT_AXIS_DIR, current_short_direction);
