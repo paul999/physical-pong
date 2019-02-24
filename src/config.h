@@ -83,5 +83,6 @@
 // Do not change after this line
 #define PLAYING 1
 #define WAITING_FOR_START 2
+#define RESTARTING 3
 
 #endif

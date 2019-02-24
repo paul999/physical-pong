@@ -12,41 +12,13 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "Arduino.h"
-#include "config.h"
-#include "endstops.h"
-#include "axis.h"
-#include "log.h"
-#include "game.h"
+#ifndef __GAME_H__
+#define __GAME_H__
 
-void setup()
-{
-  cli();
-  Serial.begin(9600);
-  logging("Starting up");
-  setupPins();
-  setupTimer();
+void setupGame();
+int getMode();
+void doPlay();
+void doRestart();
+void doPossibleStart();
 
-  randomSeed(analogRead(0));
-
-  logging("Startup done");
-  setupGame();
-
-  logging("Startup done. Now time to startup the loop");
-}
-
-void loop()
-{
-  if (getMode() == PLAYING)
-  {
-    doPlay();
-  }
-  else if (getMode() == RESTARTING)
-  {
-    doRestart();
-  }
-  else
-  {
-    doPossibleStart();
-  }
-}
+#endif

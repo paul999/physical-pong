@@ -14,39 +14,13 @@
 
 #include "Arduino.h"
 #include "config.h"
-#include "endstops.h"
-#include "axis.h"
-#include "log.h"
-#include "game.h"
 
-void setup()
+void blinkStart()
 {
-  cli();
-  Serial.begin(9600);
-  logging("Starting up");
-  setupPins();
-  setupTimer();
-
-  randomSeed(analogRead(0));
-
-  logging("Startup done");
-  setupGame();
-
-  logging("Startup done. Now time to startup the loop");
-}
-
-void loop()
-{
-  if (getMode() == PLAYING)
+  for (int i = 0; i < 10; i++)
   {
-    doPlay();
-  }
-  else if (getMode() == RESTARTING)
-  {
-    doRestart();
-  }
-  else
-  {
-    doPossibleStart();
+    digitalWrite(START_LED1, (i % 2 == 0) ? HIGH : LOW);
+    digitalWrite(START_LED2, (i % 2 == 0) ? HIGH : LOW);
+    delay(250);
   }
 }
