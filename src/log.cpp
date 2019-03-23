@@ -16,7 +16,7 @@
 #include "Arduino.h"
 
 void logging(String text) {
-  #ifdef DEBUG
+  #if defined(DEBUG) && DEBUG == true
   Serial.println(text);
   #endif
 }

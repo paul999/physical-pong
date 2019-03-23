@@ -103,6 +103,9 @@ long moveMotorToStart(axis moveAxis)
 
 long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
 {
+  logging("Moving to location");
+  Serial.println(location);
+  Serial.println(currentLocation);
   if (location == currentLocation)
   {
     return currentLocation;
@@ -115,31 +118,48 @@ long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
   {
     digitalWrite(getPin(dirPin, moveAxis), LOW);
   }
+  bool isStart = readStop(moveAxis, start) == HIT;
+  bool isStop = readStop(moveAxis, end) == HIT;
 
   long newCurrent = currentLocation;
 
   long diff = location - currentLocation;
-  Serial.println("diff:");
-  Serial.println(diff);
 
   if (diff < 0)
   {
     diff *= -1;
     for (long i = 0; i < diff; i++)
     {
+      // First check if the start values are true,
+      // otherwise we do an unneeded call to readStop
+      if (isStart && readStop(moveAxis, start) == MISSED)
+      {
+        isStart = false;
+      }
+      if (isStop && readStop(moveAxis, end) == MISSED)
+      {
+        isStop = false;
+      }
       newCurrent += 1;
       int result = moveSequence(moveAxis);
       switch (result)
       {
       case -1:
-        //return 0; // Start
+        if (!isStart)
+        {
+          // Only return if we didn't start at start.
+          Serial.println("Returning 0");
+          return 0; // Start
+        }
         break;
-
       case 1:
-        return newCurrent; // TODO: Check correct value.
-        break;
-      case 0:
-        // Do nothing.
+        if (!isStop)
+        {
+          // Only return if we didn't start at end.
+          Serial.println("Hit end?");
+          Serial.println(newCurrent);
+          return newCurrent; // TODO: Check correct value.
+        }
         break;
       }
     }
@@ -148,25 +168,41 @@ long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
   {
     for (long i = 0; i < diff; i++)
     {
+      // First check if the start values are true,
+      // otherwise we do an unneeded call to readStop
+      if (isStart && readStop(moveAxis, start) == MISSED)
+      {
+        isStart = false;
+      }
+      if (isStop && readStop(moveAxis, end) == MISSED)
+      {
+        isStop = false;
+      }
       newCurrent += 1;
       int result = moveSequence(moveAxis);
 
       switch (result)
       {
       case -1:
-        //return 0; // Start
+        if (!isStart)
+        {
+          // Only return if we didn't start at start.
+          Serial.println("Returning 0");
+          return 0; // Start
+        }
         break;
-
       case 1:
-        return newCurrent; // TODO: Check correct value.
-        break;
-      case 0:
-        // Do nothing.
+        if (!isStop)
+        {
+          // Only return if we didn't start at end.
+          Serial.println("Hit end?");
+          Serial.println(newCurrent);
+          return newCurrent; // TODO: Check correct value.
+        }
         break;
       }
     }
   }
-
   return newCurrent;
 }
 
