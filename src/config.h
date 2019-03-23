@@ -16,14 +16,30 @@
 #define __CONFIG_H__
 
 // Enable debug mode. Will write stuff to serial for debugging
-#define DEBUG true
+#define DEBUG false
 
 // Enable calculation debug mode. Not suggested to enable, as it will cause
 // issues with movements. Only enable it if you want to debug movement calculations
 // Please note that enabling this flag will require you to press start when 
 // the puck arrives at a start/stop on the long axis. 
 // Make sure to read the serial output for information about the calculations and status!
-#define DEBUG_CALC true
+#define DEBUG_CALC false
+
+// Move to the start after a player is dead.
+#define MOVE_TO_START true
+
+// Shaft length for player/axis
+// Make sure these sizes are correct, as they are used for a lot of calculations!
+#define PLAYER_LENGTH 280
+#define LONG_AXIS_LENGTH 480
+#define SHORT_AXIS_LENGTH 280
+#define STEPS_PER_MM 5
+
+// Define the number of MM that is used for dead calculations.
+#define MM_CALC 10
+
+// Max number of games before we end
+#define MAX_GAMES 10
 
 // Begin/end stops for player bars
 // X
@@ -75,19 +91,10 @@
 #define START_LED1     9
 #define START_LED2     10
 
-// Shaft length for player/axis
-// Make sure these sizes are correct, as they are used for a lot of calculations!
-#define PLAYER_LENGTH 280
-#define LONG_AXIS_LENGTH 480
-#define SHORT_AXIS_LENGTH 280
-#define STEPS_PER_MM 2.3
-
 // Size of the player (Only width) blocks and actual block. Please keep in mind that the block should be square.
+// Only change if you changed the 3D printed parts!
 #define PLAYER_SIZE 45
 #define BLOCK_SIZE 25
-
-// Max number of games before we end
-#define MAX_GAMES 10
 
 // Do not change after this line
 #define PLAYING 1

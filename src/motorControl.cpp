@@ -104,8 +104,6 @@ long moveMotorToStart(axis moveAxis)
 long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
 {
   logging("Moving to location");
-  Serial.println(location);
-  Serial.println(currentLocation);
   if (location == currentLocation)
   {
     return currentLocation;
@@ -148,7 +146,7 @@ long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
         if (!isStart)
         {
           // Only return if we didn't start at start.
-          Serial.println("Returning 0");
+          logging("Returning 0");
           return 0; // Start
         }
         break;
@@ -156,8 +154,7 @@ long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
         if (!isStop)
         {
           // Only return if we didn't start at end.
-          Serial.println("Hit end?");
-          Serial.println(newCurrent);
+          logging("Hit end?");
           return newCurrent; // TODO: Check correct value.
         }
         break;
@@ -187,7 +184,7 @@ long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
         if (!isStart)
         {
           // Only return if we didn't start at start.
-          Serial.println("Returning 0");
+          logging("Returning 0");
           return 0; // Start
         }
         break;
@@ -195,8 +192,7 @@ long moveMotorToLocation(axis moveAxis, long location, long currentLocation)
         if (!isStop)
         {
           // Only return if we didn't start at end.
-          Serial.println("Hit end?");
-          Serial.println(newCurrent);
+          logging("Hit end?");
           return newCurrent; // TODO: Check correct value.
         }
         break;

@@ -90,41 +90,75 @@ bool isOutside(int puckLocation, int playerLocation)
      * This calculation is done every iteration, so performance is sort of important
      * We assume most players will actually win, so keep that as shortest term
      */
-    //puckLocation = puckLocation * STEPS_PER_MM;
-    //playerLocation = playerLocation * STEPS_PER_MM;
-    // Remove puckLocation from Playerlocation
-    int calc = puckLocation - playerLocation;
-
-#if defined(DEBUG_CALC) && DEBUG_CALC == true
-    Serial.println("Calculations for dead:");
+    float puckSize = BLOCK_SIZE * STEPS_PER_MM;
+    float playerSize = PLAYER_SIZE * STEPS_PER_MM;
+#define IN_CALC_DEBUG defined(DEBUG_CALC) && DEBUG_CALC == true
+#if IN_CALC_DEBUG
+    Serial.println("Sizes");
+    Serial.print("Puck: ");
+    Serial.println(puckSize);
+    Serial.print("Player: ");
+    Serial.println(playerSize);
+    Serial.println("Locations of stuff:");
     Serial.println(playerLocation);
     Serial.println(puckLocation);
-    Serial.println(calc);
-    Serial.println("Blocksize:");
-    Serial.println((BLOCK_SIZE * STEPS_PER_MM));
-    Serial.println("First calc/second:");
-    Serial.println(0 - (BLOCK_SIZE * STEPS_PER_MM));
-    Serial.println((PLAYER_SIZE * STEPS_PER_MM + BLOCK_SIZE * STEPS_PER_MM));
-    Serial.println("Boolean results:");
-    Serial.println(calc >= (0 - (BLOCK_SIZE * STEPS_PER_MM)));
-    Serial.println((PLAYER_SIZE * STEPS_PER_MM + BLOCK_SIZE * STEPS_PER_MM) <= calc);
-    Serial.println(calc >= (0 - (BLOCK_SIZE * STEPS_PER_MM)) && (PLAYER_SIZE * STEPS_PER_MM + BLOCK_SIZE * STEPS_PER_MM) <= calc);
+    Serial.println("MM locations:");
+    Serial.println(playerLocation / STEPS_PER_MM);
+    Serial.println(puckLocation / STEPS_PER_MM);
 #endif
 
-    // true means player is dead.
-    if (calc >= (0 - (BLOCK_SIZE * STEPS_PER_MM)) && (PLAYER_SIZE * STEPS_PER_MM + BLOCK_SIZE * STEPS_PER_MM) <= calc)
-    { // I am sure this isn't going to be this simple.
-#if defined(DEBUG_CALC) && DEBUG_CALC == true
+    float leftPuck = puckLocation - (puckSize / 2);
+    float rightPuck = puckLocation + (puckSize / 2);
+    float leftLocation = playerLocation - (playerSize / 2);
+    float rightLocation = playerLocation + (playerSize / 2);
+
+#if defined(MM_CALC) && MM_CALC > 0
+    leftLocation = leftLocation - (MM_CALC * STEPS_PER_MM);
+    rightLocation = rightLocation + (MM_CALC * STEPS_PER_MM);
+#endif
+
+#if IN_CALC_DEBUG
+    Serial.println("left/right");
+    Serial.print("leftPuck: ");
+    Serial.print(leftPuck);
+    Serial.print(" ");
+    Serial.println(leftPuck / STEPS_PER_MM);
+    Serial.print("rightPuck: ");
+    Serial.print(rightPuck);
+    Serial.print(" ");
+    Serial.println(rightPuck / STEPS_PER_MM);
+
+    Serial.print("leftLocation: ");
+    Serial.print(leftLocation);
+    Serial.print(" ");
+    Serial.println(leftLocation / STEPS_PER_MM);
+    Serial.print("rightLocation: ");
+    Serial.print(rightLocation);
+    Serial.print(" ");
+    Serial.println(rightLocation / STEPS_PER_MM);
+
+    Serial.println("Results: ");
+    Serial.println(rightPuck > leftLocation);
+    Serial.println(leftPuck < rightLocation);
+    Serial.println(rightPuck > leftLocation && leftPuck < rightLocation);
+#endif
+
+    if (rightPuck > leftLocation && leftPuck < rightLocation)
+    {
+#if IN_CALC_DEBUG
         Serial.println("Alive");
         waitToContinue();
 #endif
         return false;
     }
-#if defined(DEBUG_CALC) && DEBUG_CALC == true
-    Serial.println("Dead");
-    waitToContinue();
+    else
+    {
+#if IN_CALC_DEBUG
+        Serial.println("Dead");
+        waitToContinue();
 #endif
-    return true;
+        return true;
+    }
 }
 
 void checkDead()
@@ -223,12 +257,12 @@ void doPlay()
         if (long_axis_location < 0)
         {
             long_axis_location = 0;
-            logging("Warn: long axis went to < 0");
+            //logging("Warn: long axis went to < 0");
         }
         if (short_axis_location < 0)
         {
             short_axis_location = 0;
-            logging("Warn: short axis went to < 0");
+            //logging("Warn: short axis went to < 0");
         }
         long_last_change++;
         if (long_last_change >= steps_min_needed)
@@ -283,15 +317,17 @@ void doRestart()
     logging("P2:");
     Serial.println(player2_games);
 #endif
-    // A player just lost. Lets move to the center and restart the game :).
-    // We won't reset the player positions.
+// A player just lost. Lets move to the center and restart the game :).
+// We won't reset the player positions.
+#if defined(MOVE_TO_START) && MOVE_TO_START == true
     long_axis_location = moveMotorToStart(along);
     short_axis_location = moveMotorToStart(ashort);
+#endif
 
-    long loc = (LONG_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
+    long loc = ((LONG_AXIS_LENGTH - (BLOCK_SIZE / 2)) / 2) * STEPS_PER_MM;
     long_axis_location = moveMotorToLocation(along, loc, long_axis_location);
 
-    loc = (SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
+    loc = ((SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2)) / 2) * STEPS_PER_MM;
     short_axis_location = moveMotorToLocation(ashort, loc, short_axis_location);
 
     current_long_direction = (random(0, 500) % 2 == 0) ? HIGH : LOW;
@@ -327,14 +363,14 @@ void doPossibleStart()
 
         logging("Going to center position.");
 
-        long loc = (PLAYER_LENGTH - (PLAYER_SIZE / 2l)) * STEPS_PER_MM;
+        long loc = ((PLAYER_LENGTH - (PLAYER_SIZE / 2)) / 2) * STEPS_PER_MM;
         player1_location = moveMotorToLocation(aplayer1, loc, player1_location);
         player2_location = moveMotorToLocation(aplayer2, loc, player2_location);
 
-        loc = (LONG_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
+        loc = ((LONG_AXIS_LENGTH - (BLOCK_SIZE / 2)) / 2) * STEPS_PER_MM;
         long_axis_location = moveMotorToLocation(along, loc, long_axis_location);
 
-        loc = (SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2l)) * STEPS_PER_MM;
+        loc = ((SHORT_AXIS_LENGTH - (BLOCK_SIZE / 2)) / 2) * STEPS_PER_MM;
         short_axis_location = moveMotorToLocation(ashort, loc, short_axis_location);
 
         // Decide to which directory we go to
