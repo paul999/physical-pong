@@ -22,9 +22,9 @@
 int moveSequence(axis moveAxis)
 {
   digitalWrite(getPin(stepPin, moveAxis), HIGH);
-  delayMicroseconds(500);
+  delayMicroseconds(400);
   digitalWrite(getPin(stepPin, moveAxis), LOW);
-  delayMicroseconds(500);
+  delayMicroseconds(400);
 
   if (readStop(moveAxis, end))
   {
@@ -95,9 +95,9 @@ long moveMotorToStart(axis moveAxis)
       return 0;
     }
     digitalWrite(getPin(stepPin, moveAxis), HIGH);
-    delayMicroseconds(500);
+    delayMicroseconds(400);
     digitalWrite(getPin(stepPin, moveAxis), LOW);
-    delayMicroseconds(500);
+    delayMicroseconds(400);
   }
 }
 
@@ -208,10 +208,10 @@ void moveSeveralMotorsOneStep(movement mv)
   digitalWrite(getPin(stepPin, ashort), mv.ashort);
   digitalWrite(getPin(stepPin, aplayer1), mv.aplayer1);
   digitalWrite(getPin(stepPin, aplayer2), mv.aplayer2);
-  delayMicroseconds(650);
+  delayMicroseconds(400);
   digitalWrite(getPin(stepPin, along), LOW);
   digitalWrite(getPin(stepPin, ashort), LOW);
   digitalWrite(getPin(stepPin, aplayer1), LOW);
   digitalWrite(getPin(stepPin, aplayer2), LOW);
-  delayMicroseconds(600);
+  delayMicroseconds(400);
 }

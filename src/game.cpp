@@ -19,6 +19,11 @@
 #include "config.h"
 #include "led.h"
 
+#if defined(ENABLE_SCORE_DISPLAY) && ENABLE_SCORE_DISPLAY == true
+#define SCORE true
+#include "display.h"
+#endif
+
 int mode = WAITING_FOR_START;
 long player1_location = 0;
 long player2_location = 0;
@@ -29,12 +34,15 @@ int current_short_direction = 0;
 
 int short_last_change = 0;
 int long_last_change = 0;
-int steps_min_needed = 20; //ceil(STEPS_PER_MM * 3);
+int steps_min_needed = 30; //ceil(STEPS_PER_MM * 3);
 int player1_games = 0;
 int player2_games = 0;
 
 void setupGame()
 {
+#ifdef SCORE
+    setupSegmentPins();
+#endif
     disableMotor(false);
 
     logging("Going to start positions");
@@ -172,7 +180,11 @@ void checkDead()
             mode = RESTARTING;
             logging("Player1 dead.");
             player2_games++;
-            blinkStart();
+#ifdef SCORE
+            setScore(p1, player1_games);
+            setScore(p2, player2_games);
+#endif
+            //blinkStart();
         }
         else
         {
@@ -187,7 +199,11 @@ void checkDead()
             mode = RESTARTING;
             logging("player2 dead.");
             player1_games++;
-            blinkStart();
+#ifdef SCORE
+            setScore(p1, player1_games);
+            setScore(p2, player2_games);
+#endif
+           // blinkStart();
         }
         else
         {

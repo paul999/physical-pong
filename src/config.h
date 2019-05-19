@@ -96,6 +96,15 @@
 #define PLAYER_SIZE 45
 #define BLOCK_SIZE 25
 
+// Enable two 7 segment displays showing the current score. Make sure to set the correct pints below
+#define ENABLE_SCORE_DISPLAY true
+#define SEGMENT_A_PIN 31
+#define SEGMENT_B_PIN 33
+#define SEGMENT_C_PIN 35
+#define SEGMENT_D_PIN 37
+#define PLAYER1_LATCH_PIN 39
+#define PLAYER2_LATCH_PIN 41
+
 // Do not change after this line
 #define PLAYING 1
 #define WAITING_FOR_START 2
