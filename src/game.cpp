@@ -24,6 +24,11 @@
 #include "display.h"
 #endif
 
+#if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP == true
+#define LEDSTRIP true
+#include "ledstrip.h"
+#endif
+
 int mode = WAITING_FOR_START;
 long player1_location = 0;
 long player2_location = 0;
@@ -34,12 +39,15 @@ int current_short_direction = 0;
 
 int short_last_change = 0;
 int long_last_change = 0;
-int steps_min_needed = 30; //ceil(STEPS_PER_MM * 3);
+int steps_min_needed = ceil(STEPS_PER_MM * 5);
 int player1_games = 0;
 int player2_games = 0;
 
 void setupGame()
 {
+#ifdef LEDSTRIP
+    setupLedstrip();
+#endif
 #ifdef SCORE
     setupSegmentPins();
 #endif
@@ -180,6 +188,9 @@ void checkDead()
             mode = RESTARTING;
             logging("Player1 dead.");
             player2_games++;
+#if LEDSTRIP
+        playerDead(p1);
+#endif            
 #ifdef SCORE
             setScore(p1, player1_games);
             setScore(p2, player2_games);
@@ -199,11 +210,14 @@ void checkDead()
             mode = RESTARTING;
             logging("player2 dead.");
             player1_games++;
+#if LEDSTRIP
+        playerDead(p2);
+#endif                        
 #ifdef SCORE
             setScore(p1, player1_games);
             setScore(p2, player2_games);
 #endif
-           // blinkStart();
+            // blinkStart();
         }
         else
         {
@@ -213,6 +227,9 @@ void checkDead()
     if (player1_games >= MAX_GAMES || player2_games >= MAX_GAMES)
     {
         mode = WAITING_FOR_START;
+#if LEDSTRIP
+        allGreen();
+#endif
     }
 }
 
@@ -351,6 +368,10 @@ void doRestart()
     short_last_change = 0;
     long_last_change = 0;
     mode = PLAYING;
+
+#if LEDSTRIP
+    allWhite();
+#endif
 }
 
 void doPossibleStart()
@@ -360,6 +381,9 @@ void doPossibleStart()
 
     if (digitalRead(START_BUTTON1) == HIGH || digitalRead(START_BUTTON2) == HIGH)
     {
+#if LEDSTRIP
+        allWhite();
+#endif
         digitalWrite(START_LED1, LOW);
         digitalWrite(START_LED2, LOW);
         logging("User wants to start playing");
@@ -401,7 +425,13 @@ void doPossibleStart()
         disableMotor(true);
         // Lets get starting with warning the user that we are about to start ;)
         logging("Init done. Now lets warn the user");
+#if LEDSTRIP
+        allGreen();
+#endif
         blinkStart();
+#if LEDSTRIP
+        allWhite();
+#endif
 
         digitalWrite(START_LED1, LOW);
         digitalWrite(START_LED2, LOW);

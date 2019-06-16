@@ -82,7 +82,8 @@ long moveMotorToStart(axis moveAxis)
     {
       logging("Looks like we hit a endstop while going to home. Wrongly configured?");
       logging("We will return now, but we are not in a save position!");
-      disableMotor(true);
+      logging("axis:" + moveAxis);
+      // disableMotor(true);
       return -1;
     }
     if (atEnd && readStop(moveAxis, end) == MISSED)

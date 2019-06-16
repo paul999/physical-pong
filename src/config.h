@@ -16,7 +16,7 @@
 #define __CONFIG_H__
 
 // Enable debug mode. Will write stuff to serial for debugging
-#define DEBUG false
+#define DEBUG true
 
 // Enable calculation debug mode. Not suggested to enable, as it will cause
 // issues with movements. Only enable it if you want to debug movement calculations
@@ -104,6 +104,30 @@
 #define SEGMENT_D_PIN 37
 #define PLAYER1_LATCH_PIN 39
 #define PLAYER2_LATCH_PIN 41
+
+// Enable the LED strip that shows some nice colors
+// Before enabling, please read the documentation on what this library expects.
+#define ENABLE_LED_STRIP true
+#define LED_STRIP_P1_PIN 47
+#define LED_STRIP_P2_PIN 32
+#define LED_STRIP_LEFT_PIN 43
+#define LED_STRIP_RIGHT_PIN 45
+// Make sure to have the number of leds on the side be higher as the number of LEDs
+// on the player!
+#define NUM_LEDS_PLAYER 24
+#define NUM_LEDS_SIDE 38
+// Define the max power in milli-amps (By 5volt). This should match your power supply!
+#define LEDSTRIP_MAX_POWER 10000
+
+#if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP 
+    #include <FastLED.h>
+    // Define the type of LED strip you use. 
+    #define LED_TYPE WS2812B
+    // This is some configuration for the LED strip.
+    // If you see incorrect colors on your strip, 
+    // you might need to change this to RGB instead of GRB.
+    #define COLOR_ORDER GRB
+#endif
 
 // Do not change after this line
 #define PLAYING 1
