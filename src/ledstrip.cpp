@@ -120,4 +120,9 @@ void allWhite()
   allColor(CRGB::White);
 }
 
+void allRed()
+{
+  allColor(CRGB::Red);
+}
+
 #endif

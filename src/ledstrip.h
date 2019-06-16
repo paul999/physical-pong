@@ -24,6 +24,7 @@ void playersGreen();
 void playersWhite();
 void allGreen();
 void allWhite();
+void allRed();
 
 #endif
 

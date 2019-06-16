@@ -18,6 +18,9 @@
 #include "endstops.h"
 #include "axis.h"
 #include "motorControl.h"
+#if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP == true
+#include "ledstrip.h"
+#endif
 
 int moveSequence(axis moveAxis)
 {
@@ -76,6 +79,9 @@ long moveMotorToStart(axis moveAxis)
       // 200 steps per mm, max length is ~500mm. So 200 * 500: 100000 should always result in the start!
       logging("Unable to get to start");
       disableMotor(true);
+#if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP == true
+      allRed();
+#endif
       return -1;
     }
     if (!atEnd && readStop(moveAxis, end) == HIT)
@@ -83,7 +89,10 @@ long moveMotorToStart(axis moveAxis)
       logging("Looks like we hit a endstop while going to home. Wrongly configured?");
       logging("We will return now, but we are not in a save position!");
       logging("axis:" + moveAxis);
-      // disableMotor(true);
+      disableMotor(true);
+#if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP == true
+      allRed();
+#endif
       return -1;
     }
     if (atEnd && readStop(moveAxis, end) == MISSED)
