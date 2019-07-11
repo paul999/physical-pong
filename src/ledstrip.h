@@ -12,48 +12,20 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "Arduino.h"
-#include "config.h"
-#include "endstops.h"
-#include "axis.h"
-#include "log.h"
-#include "game.h"
-#if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP == true
-#include "ledstrip.h"
-#endif
-
-void setup()
-{
-  cli();
-  Serial.begin(9600);
-  logging("Starting up");
-  setupPins();
-  setupTimer();
-
-  randomSeed(analogRead(0));
-
-  logging("Startup done");
-  setupGame();
+#ifndef __LEDSTRIP_H__
+#define __LEDSTRIP_H__
 
 #if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP == true
-  allGreen();
+#include "player.h"
+
+void setupLedstrip();
+void playerDead(player pl);
+void playersGreen();
+void playersWhite();
+void allGreen();
+void allWhite();
+void allRed();
+
 #endif
 
-  logging("Startup done. Now time to startup the loop");
-}
-
-void loop()
-{
-  if (getMode() == PLAYING)
-  {
-    doPlay();
-  }
-  else if (getMode() == RESTARTING)
-  {
-    doRestart();
-  }
-  else
-  {
-    doPossibleStart();
-  }
-}
+#endif

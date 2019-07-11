@@ -11,49 +11,13 @@
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifndef __PLAYER_H__
+#define __PLAYER_H__
 
-#include "Arduino.h"
-#include "config.h"
-#include "endstops.h"
-#include "axis.h"
-#include "log.h"
-#include "game.h"
-#if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP == true
-#include "ledstrip.h"
-#endif
-
-void setup()
+enum player
 {
-  cli();
-  Serial.begin(9600);
-  logging("Starting up");
-  setupPins();
-  setupTimer();
+    p1,
+    p2
+};
 
-  randomSeed(analogRead(0));
-
-  logging("Startup done");
-  setupGame();
-
-#if defined(ENABLE_LED_STRIP) && ENABLE_LED_STRIP == true
-  allGreen();
 #endif
-
-  logging("Startup done. Now time to startup the loop");
-}
-
-void loop()
-{
-  if (getMode() == PLAYING)
-  {
-    doPlay();
-  }
-  else if (getMode() == RESTARTING)
-  {
-    doRestart();
-  }
-  else
-  {
-    doPossibleStart();
-  }
-}
